@@ -1,10 +1,12 @@
 import React from "react";
 
-const Filter = ({ filter, handleFilterChange }) => {
+const Filter = ({ search, handleChangeSearch }) => {
   return (
     <div>
-      filter shown with:
-      <input value={filter} onChange={handleFilterChange} />
+      <p>
+        Filter search with{" "}
+        <input value={search} type="text" onChange={handleChangeSearch} />
+      </p>
     </div>
   );
 };

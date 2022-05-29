@@ -1,10 +1,10 @@
 import React from "react";
 
-const Person = ({ key, person }) => {
+const Person = ({ person }) => {
   return (
-    <div key={key}>
-      {person.name} {person.number}
-    </div>
+    <li>
+      {person.name} {person.phone}
+    </li>
   );
 };
 
