@@ -13,12 +13,13 @@ const Languages = ({ languages }) => {
 
 const Weather = ({ capital }) => {
   const [weather, setWeather] = useState([]);
-  const OPENWEATHER_API_KEY = process.env.REACT_APP_OPENWEATHER_API_KEY;
+  const REACT_APP_OPENWEATHER_API_KEY =
+    process.env.REACT_APP_OPENWEATHER_API_KEY;
 
   useEffect(() => {
     axios
       .get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${capital}&units=metric&appid=2edd4741d70cfc3c933d84f07fa2e8f1`
+        `https://api.openweathermap.org/data/2.5/weather?q=${capital}&units=metric&appid=${REACT_APP_OPENWEATHER_API_KEY}`
       )
       .then((response) => {
         setWeather(response.data);
