@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Filter from "./components/Filter";
 import Person from "./components/Person";
 import Personform from "./components/Personform";
+import personService from "./services/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +11,9 @@ const App = () => {
   const [newName, setNewName] = useState({ name: "", phone: "" });
 
   const [search, setSearch] = useState("");
+  const findOne = (id) => {
+    return persons.find((person) => person.id === id);
+  };
 
   const handleChangeSearch = (e) => {
     setSearch(e.target.value);
@@ -18,17 +22,42 @@ const App = () => {
   const handleChange = (value, field) => {
     setNewName({ ...newName, [field]: value });
   };
+  const Delete = (id) => {
+    const person = findOne(id);
 
-  const addName = (e) => {
+    if (window.confirm(`Are you sure you want delete ${person.name}`)) {
+      personService.deleteOne(id).then((response) => {
+        setPersons(persons.filter((person) => person.id !== id));
+      });
+    } else {
+      alert(`deleting ${person.name} cancled `);
+    }
+  };
+  const create = (e) => {
     e.preventDefault();
     let goOn = true;
     if (newName.name === "") {
       return alert("Name cannot be empty");
     }
     persons.map((person) => {
-      if (person.name === newName.name) {
+      if (person.name.toLowerCase() === newName.name.toLowerCase()) {
         goOn = false;
-        return alert(newName.name + " is taken!!!");
+        if (
+          window.confirm(
+            `${person.name} already exist, do you want to change the number`
+          )
+        ) {
+          const newPerson = { ...person, number: newName.phone };
+          personService.update(person.id, newPerson).then((retrunedPerson) => {
+            setPersons(
+              persons.map((person) =>
+                person.id != retrunedPerson.id ? person : retrunedPerson
+              )
+            );
+          });
+        } else {
+          return alert(newName.name + " is taken!!!");
+        }
       }
       return goOn;
     });
@@ -36,12 +65,13 @@ const App = () => {
     if (goOn) {
       const Typedname = {
         name: newName.name,
-        phone: newName.phone,
+        number: newName.phone,
       };
+      personService.create(Typedname).then((response) => {
+        setPersons(persons.concat(response));
 
-      setPersons(persons.concat(Typedname));
-
-      setNewName({ name: "", phone: "" });
+        setNewName({ name: "", phone: "" });
+      });
     }
   };
 
@@ -52,9 +82,10 @@ const App = () => {
     : persons;
 
   const hook = () => {
-    axios.get("http://localhost:3001/persons").then((response) => {
-      setPersons(response.data);
-    });
+    personService.getAll().then((response) => setPersons(response));
+    // axios.get("http://localhost:3001/persons").then((response) => {
+    //   setPersons(response.data);
+    // });
   };
 
   useEffect(hook, []);
@@ -66,12 +97,14 @@ const App = () => {
       <Personform
         newName={newName}
         handleChange={handleChange}
-        addName={addName}
+        addName={create}
       />
       <h2>Numbers</h2>
       <ol key={Math.random()}>
         {personsToDisplay.map((person) => {
-          return <Person key={person.name} person={person} />;
+          return (
+            <Person key={person.name} person={person} handleDelete={Delete} />
+          );
         })}
       </ol>
     </div>
